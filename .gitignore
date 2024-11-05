@@ -8,3 +8,4 @@ cmake_install.cmake
 /Makefile
 .vscode
 compile_commands.json
+test
