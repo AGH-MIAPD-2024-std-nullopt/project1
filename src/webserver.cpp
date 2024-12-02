@@ -1,8 +1,28 @@
 #include "webserver.h"
+#include "AHP.h"
+#include "logging.h"
+#include "json_handling.h"
 
+#include <mutex>
 #include <filesystem>
 #include <fmt/core.h>
 
+
+
+
+void createErrorResponse(auto& req, restinio::http_status_line_t status = restinio::status_internal_server_error()) {
+  req->create_response(status)
+    .append_header_date_field()
+    .connection_close()
+    .done();
+}
+
+void createOKResponse(auto& req) {
+  req->create_response(restinio::status_ok())
+    .append_header_date_field()
+    .connection_close()
+    .done();
+}
 
 std::string loadFile(const std::string& path)
 {
@@ -18,7 +38,7 @@ std::string loadFile(const std::string& path)
   return contents.str();
 }
 
-std::string getMIMEType(const restinio::string_view_t & ext)
+std::string getMIMEType(const restinio::string_view_t& ext)
 {
   if(ext == "css")    return "text/css";
   if(ext == "csv")    return "text/csv";
@@ -38,6 +58,12 @@ std::string getMIMEType(const restinio::string_view_t & ext)
 
 namespace webserver 
 {
+  static struct : public std::mutex { // just to make this object lockable
+    std::vector<std::string> alternatives;
+    std::vector<std::string> criteria;
+    std::vector<json_handling::AgentInput> agentInputs; //TODO: change scope of AgentInput typedef
+  } currentState;
+
   auto staticContentHandler = [](auto req, auto params) {
     const auto path = params["path"];
     const auto ext = params["ext"];
@@ -45,17 +71,13 @@ namespace webserver
     const auto filePath = fmt::format("static/{}.{}", path, ext);
 
     if(filePath.find("..") != std::string::npos) {
-      return req->create_response(restinio::status_forbidden())
-        .append_header_date_field()
-        .connection_close()
-        .done();
+      createErrorResponse(req, restinio::status_forbidden());
+      return restinio::request_rejected();
     }
 
     if(!std::filesystem::exists(filePath)) {
-      return req->create_response(restinio::status_not_found())
-        .append_header_date_field()
-        .connection_close()
-        .done();
+      createErrorResponse(req, restinio::status_not_found());
+      return restinio::request_rejected();
     }
 
     try
@@ -64,11 +86,33 @@ namespace webserver
     }
     catch(const std::exception& e)
     {
-      return req->create_response(restinio::status_internal_server_error())
-        .append_header_date_field()
-        .connection_close()
-        .done();
+      createErrorResponse(req);
+      return restinio::request_rejected();
     }
+  };
+
+  auto submitSetupHandler = [](auto req, auto) {
+    try {
+      auto query = restinio::parse_query(req->header().query());
+      std::string jsonStr(query["data"]);
+
+      auto [alternatives, criteria] = json_handling::parseSetup(jsonStr);
+
+      logger::debug(fmt::format("Recieved valid setup.\n\t criteria: [{}] \n\t alternatives: [{}]", 
+                    fmt::join(criteria, ","), fmt::join(alternatives, ",")));
+
+      std::lock_guard lock(currentState);
+      currentState.alternatives = alternatives;
+      currentState.criteria = criteria;
+
+      createOKResponse(req);
+    }
+    catch(const std::exception& e) {
+      logger::error(fmt::format("Error while parsing setup json: {}\n\tquery: {}", e.what(), req->header().query()));
+      createErrorResponse(req);
+      return restinio::request_rejected();
+    }
+    return restinio::request_accepted();
   };
 
   std::unique_ptr<router_t> createRequestHandler()
@@ -84,6 +128,10 @@ namespace webserver
 
         return restinio::request_accepted();
       }
+    );
+    router->http_get(
+      "/submitSetup",
+      submitSetupHandler
     );
     
     router->http_get(
