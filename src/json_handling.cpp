@@ -26,13 +26,21 @@ namespace json_handling
     return { alternatives, criteria };
   };
 
+  AHP::ComparisonValues parseSingleAltComparisons(json::jobject& singleAltComparisons)
+  {
+    //TODO
+  }
+
   AgentInput parseAgentInput(const std::string& jsonStr)
   {
     AgentInput agentInput;
 
     json::jobject json = json::jobject::parse(jsonStr.c_str());
 
+    json::jobject altComparisons;
+    json::jobject critComparisons;
     
+    //TODO
 
     return agentInput;
   };

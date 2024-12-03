@@ -8,8 +8,6 @@
 #include <fmt/core.h>
 
 
-
-
 void createErrorResponse(auto& req, restinio::http_status_line_t status = restinio::status_internal_server_error()) {
   req->create_response(status)
     .append_header_date_field()
@@ -61,7 +59,7 @@ namespace webserver
   static struct : public std::mutex { // just to make this object lockable
     std::vector<std::string> alternatives;
     std::vector<std::string> criteria;
-    std::vector<json_handling::AgentInput> agentInputs; //TODO: change scope of AgentInput typedef
+    std::vector<json_handling::AgentInput> agentInputs;
   } currentState;
 
   auto staticContentHandler = [](auto req, auto params) {

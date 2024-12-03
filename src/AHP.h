@@ -7,43 +7,36 @@
 
 #include <Eigen/Dense>
 
-class AHPRanker {
-public:
-    using Matrix2D = Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>;
+namespace AHP {
+  using Matrix2D = Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>;
 
-    AHPRanker() = default;
-    AHPRanker(const AHPRanker&) = default;
-    AHPRanker(AHPRanker&&) = default;
-    AHPRanker& operator=(const AHPRanker&) = default;
-    AHPRanker& operator=(AHPRanker&&) = default;
+  using ComparisonValues = std::map<std::string, double>; // alt2 -> value
+  using Comparisons = std::map<std::string, ComparisonValues>; // alt1 -> map of comaprison values for each alt2
 
-    void addComparison(const std::string& alternative1,
-                       const std::string& alternative2,
-                       const std::string& criteria,
-                       double value);
+  struct AgentInput {
+    std::map<std::string, Comparisons> altComparisons;  // criteria -> comparisons of alternatives in this criteria
+    Comparisons critComparisons;
+  };
 
-    void readSingleAgentCsv(const std::string& filename);
-    void readMultiAgentsCsv(const std::vector<std::string>& filenames);
 
-    void calculate();
+  class AHPMatrixBuilder {
+  public:
+    AHPMatrixBuilder(const std::vector<std::string>& alternatives, const std::vector<std::string>& criteria);
 
-    std::vector<double> getRanking();
-    std::vector<std::string> getCriteria();
-    double getConsistencyRatio();
+    void addComparison(const std::string& alt1, const std::string& alt2, double val);
 
-private:
-    Matrix2D buildAvgMatrix(const std::vector<Matrix2D>& matrices);
-    
-    std::vector<double> calculateRanking();
-    double calculateConsistencyRatio();
-    double getRandomConsistencyIndex(size_t n);
+    Matrix2D getMatrix();
 
-    using ComparisonMap = std::map<std::pair<std::string, std::string>, double>;
-    using ComparisonsByCriteriaMap = std::map<std::string, ComparisonMap>;
-    ComparisonsByCriteriaMap comparisons;
+  private:
+    const std::vector<std::string>& alternatives_;
+    const std::vector<std::string>& criteria_;
+    Comparisons comps_;
+    Matrix2D mat_;
+  };
 
-    std::optional<std::vector<std::string>> criteria;
-    std::optional<Matrix2D> comparison_matrix;
-    std::optional<std::vector<double>> calculatedRanking;
-    std::optional<double> calculatedConsistencyRatio;
-};
+
+  class AHPRanker {
+    //TODO
+  };
+
+}
