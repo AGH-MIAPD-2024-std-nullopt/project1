@@ -66,27 +66,35 @@ namespace webserver
     const auto path = params["path"];
     const auto ext = params["ext"];
 
-    const auto filePath = fmt::format("static/{}.{}", path, ext);
+    const std::string filePath = fmt::format("src_html/static/{}.{}", path, ext);
 
     if(filePath.find("..") != std::string::npos) {
       createErrorResponse(req, restinio::status_forbidden());
       return restinio::request_rejected();
     }
 
-    if(!std::filesystem::exists(filePath)) {
+    const std::string absPath = std::filesystem::absolute(filePath).string();
+
+    if(!std::filesystem::exists(absPath)) {
       createErrorResponse(req, restinio::status_not_found());
       return restinio::request_rejected();
     }
 
     try
     {
-      //TODO: read file and send it as response
+      req->create_response()
+        .append_header( restinio::http_field::content_type, getMIMEType(ext) )
+        .append_header_date_field()
+        .set_body(loadFile(absPath))
+        .done();
+      return restinio::request_accepted();
     }
     catch(const std::exception& e)
     {
       createErrorResponse(req);
       return restinio::request_rejected();
     }
+    return restinio::request_rejected();
   };
 
   auto submitSetupHandler = [](auto req, auto) {

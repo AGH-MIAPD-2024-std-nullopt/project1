@@ -28,6 +28,8 @@ namespace json_handling
 
   AHP::ComparisonValues parseSingleAltComparisons(json::jobject& singleAltComparisons)
   {
+    AgentInput agi;
+    
     //TODO
   }
 
