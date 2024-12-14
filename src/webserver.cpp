@@ -147,53 +147,81 @@ namespace webserver
   };
 
   auto resultsHandler = [](auto req, auto) {
-    std::lock_guard lock(currentState);
+    try {
+      std::lock_guard lock(currentState);
 
-    if(currentState.alternatives.empty() || currentState.criteria.empty() || currentState.agentInputs.empty()) {
+      if(currentState.alternatives.empty() || currentState.criteria.empty() || currentState.agentInputs.empty()) {
+        req->create_response()
+          .append_header( restinio::http_field::content_type, "application/json" )
+          .append_header_date_field()
+          .set_body("{ \"status\": \"Error\", \"message\": \"No data has been submitted\" }")
+          .done();
+        return restinio::request_rejected();
+      }
+
+      AHP::AHPMeanCalculator meanCalc(currentState.criteria);
+
+      for(auto& agentInput : currentState.agentInputs) {
+        AHP::Matrix2D criteriaMatrix = AHP::buildMatrix(agentInput.critComparisons, currentState.criteria);
+        meanCalc.addCritMatrix(std::move(criteriaMatrix));
+
+        std::map<std::string, AHP::Matrix2D> altMatrices;
+        for(auto& [criteria, comparisons] : agentInput.altComparisons) {
+          altMatrices[criteria] = AHP::buildMatrix(comparisons, currentState.alternatives);
+        }
+        meanCalc.addAltMatrices(std::move(altMatrices));
+      }
+
+      auto critMatrix = meanCalc.getMeanCritMatrix();
+      auto altMatrices = meanCalc.getMeanAltMatrices();
+
+      AHP::AHPRanker ranker;
+      AHP::AHPResult result = ranker.calculateRanking(critMatrix, altMatrices);
+
+      // Prepare response
+      std::string resp = loadFile("src_html/templates/results.html");
+
+      // Ranking of alternatives
+      std::vector<std::pair<std::string, double>> rankedAlternatives;
+      for(size_t i = 0; i < currentState.alternatives.size(); i++) {
+        rankedAlternatives.push_back({currentState.alternatives[i], result.ranking[i]});
+      }
+      std::sort(rankedAlternatives.begin(), rankedAlternatives.end(), 
+                [](auto& a, auto& b) { return a.second > b.second; });
+
+      std::string ranking = "";
+      int pos = 1;
+      for(auto& [alt, val] : rankedAlternatives) {
+        ranking += fmt::format("<tr><td class=\"ranking-poscol\">{}.</td><td>{}</td> <td class=\"ranking-valcol\">{:.3}</td></tr>", 
+          pos++, alt, val);
+      }
+      resp.replace(resp.find("{{RANKING}}"), 11, ranking);
+
+      // Inconsistency ratios for alternatives
+      std::string ir_alts = "";
+      for(size_t i = 0; i < currentState.criteria.size(); i++) {
+        ir_alts += fmt::format("<tr><td class=\"ir-alt-data\">{}:</td> <td class=\"data-valcol\">{:.3}</td></tr>", 
+          currentState.criteria[i], result.alternativesIRatios[i]);
+      }
+      resp.replace(resp.find("{{IR_ALTS}}"), 11, ir_alts);
+
+      // Inconsistency ratio for criteria
+      std::string ir_crit = std::isnan(result.criteriaIRatio) ? "N/A" : fmt::format("{:.3}", result.criteriaIRatio);
+      
+      resp.replace(resp.find("{{IR_CRIT}}"), 11, ir_crit);
+
       req->create_response()
-        .append_header( restinio::http_field::content_type, "application/json" )
+        .append_header( restinio::http_field::content_type, "text/html; charset=utf-8" )
         .append_header_date_field()
-        .set_body("{ \"status\": \"Error\", \"message\": \"No data has been submitted\" }")
+        .set_body(resp)
         .done();
+    }
+    catch(const std::exception& e) {
+      logger::error(fmt::format("Error while calculating results: {}", e.what()));
+      createErrorResponse(req);
       return restinio::request_rejected();
     }
-
-    AHP::AHPMeanCalculator meanCalc(currentState.criteria);
-
-    for(auto& agentInput : currentState.agentInputs) {
-      AHP::Matrix2D criteriaMatrix = AHP::buildMatrix(agentInput.critComparisons, currentState.criteria);
-      meanCalc.addCritMatrix(std::move(criteriaMatrix));
-
-      std::map<std::string, AHP::Matrix2D> altMatrices;
-      for(auto& [criteria, comparisons] : agentInput.altComparisons) {
-        altMatrices[criteria] = AHP::buildMatrix(comparisons, currentState.alternatives);
-      }
-      meanCalc.addAltMatrices(std::move(altMatrices));
-    }
-
-    auto critMatrix = meanCalc.getMeanCritMatrix();
-    auto altMatrices = meanCalc.getMeanAltMatrices();
     
-    std::cout << "critMatrix: " << critMatrix << std::endl;
-    for(auto& m : altMatrices) {
-      std::cout << "altMatrix: " << m << std::endl;
-    }
-
-    AHP::AHPRanker ranker;
-    AHP::AHPResult result = ranker.calculateRanking(critMatrix, altMatrices);
-
-    std::string jsonResult = fmt::format(R"({{
-      "ranking": [{}],
-      "criteriaIRatio": {},
-      "alternativesIRatios": [{}]
-    }})", fmt::join(result.ranking, ","), result.criteriaIRatio, fmt::join(result.alternativesIRatios, ","));
-
-    req->create_response()
-      .append_header( restinio::http_field::content_type, "application/json" )
-      .append_header_date_field()
-      .set_body(jsonResult)
-      .done();
-
     return restinio::request_accepted();
   };
 
@@ -205,6 +233,7 @@ namespace webserver
       [](auto req, auto) {
         req->create_response()
         .append_header( restinio::http_field::content_type, "text/html; charset=utf-8" )
+        .append_header_date_field()
         .set_body(loadFile("src_html/templates/index.html"))
         .done();
 

@@ -7,7 +7,7 @@ body {
 h2, h3 {
   margin: 10px 0;
 }
-.config-section, .comparison-section {
+.config-section, .comparison-section, .results-section {
   background-color: #f9f9f9;
   padding: 20px;
   border-radius: 8px;
@@ -41,9 +41,27 @@ select {
   width: 100%;
   padding: 5px;
 }
-#jsonOutput {
-  width: 100%;
-  height: 200px;
-  margin-top: 20px;
-  resize: none;
+.data, .ranking {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif
+}
+th {
+  text-align: left;
+  font-weight: 600;
+}
+.data-table, .ranking-table {
+  width: 340px;
+  margin-bottom: 20px;
+}
+.ir-alt-data {
+  text-indent: 20px;
+}
+.ranking-valcol {
+  width: 60px;
+}
+.ranking-poscol {
+  width: 30px;
 }
