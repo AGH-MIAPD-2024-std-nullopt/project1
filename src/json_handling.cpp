@@ -12,15 +12,15 @@ namespace json_handling
 
     json::jobject json = json::jobject::parse(jsonStr.c_str());
 
-    json::jobject altArr = json["alternatives"];
-    json::jobject critArr = json["criteria"];
+    std::vector<std::string> altArr = json["alternatives"].as_array();
+    std::vector<std::string> critArr = json["criteria"].as_array();
 
-    for(int i = 0; i < altArr.size(); i++) {
-      alternatives.push_back(altArr.array(i).as_string());
+    for(auto i : altArr) {
+      alternatives.push_back(i);
     }
 
-    for(int i = 0; i < critArr.size(); i++) {
-      criteria.push_back(critArr.array(i).as_string());
+    for(auto i : critArr) {
+      criteria.push_back(i);
     }
 
     return { alternatives, criteria };
@@ -28,9 +28,15 @@ namespace json_handling
 
   AHP::ComparisonValues parseSingleAltComparisons(json::jobject& singleAltComparisons)
   {
-    AgentInput agi;
+    AHP::ComparisonValues compValues;
+
+    auto keys = singleAltComparisons.list_keys();
+    for(auto& key : keys) {
+      std::string val = singleAltComparisons[key].as_string();
+      compValues[key] = std::stod(val);
+    }
     
-    //TODO
+    return compValues;
   }
 
   AgentInput parseAgentInput(const std::string& jsonStr)
@@ -39,10 +45,22 @@ namespace json_handling
 
     json::jobject json = json::jobject::parse(jsonStr.c_str());
 
-    json::jobject altComparisons;
-    json::jobject critComparisons;
-    
-    //TODO
+    json::jobject altComparisons = json["alternativeMatrices"];
+    json::jobject critComparisons = json["criteriaMatrix"];
+
+    for(std::string criteria : altComparisons.list_keys()) {
+      auto altCompByCriteria = altComparisons[criteria].as_object();
+
+      for(std::string alt1 : altCompByCriteria.list_keys()) {
+        auto altValues = altCompByCriteria[alt1].as_object();
+        agentInput.altComparisons[criteria][alt1] = parseSingleAltComparisons(altValues);
+      }
+    }
+
+    for(std::string criteria : critComparisons.list_keys()) {
+      auto critValues = critComparisons[criteria].as_object();
+      agentInput.critComparisons[criteria] = parseSingleAltComparisons(critValues);
+    }
 
     return agentInput;
   };
