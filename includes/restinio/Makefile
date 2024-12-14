@@ -57,10 +57,10 @@ RM = /usr/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /mnt/c/Users/Distaff/source/repos/miapd/project1
+CMAKE_SOURCE_DIR = /mnt/c/users/Distaff-WK/source/infa/MIAPD/project1
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /mnt/c/Users/Distaff/source/repos/miapd/project1
+CMAKE_BINARY_DIR = /mnt/c/Users/Distaff-WK/source/infa/MIAPD/project1
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -132,14 +132,14 @@ install/strip/fast: preinstall/fast
 
 # The main all target
 all: cmake_check_build_system
-	cd /mnt/c/Users/Distaff/source/repos/miapd/project1 && $(CMAKE_COMMAND) -E cmake_progress_start /mnt/c/Users/Distaff/source/repos/miapd/project1/CMakeFiles /mnt/c/Users/Distaff/source/repos/miapd/project1/includes/restinio//CMakeFiles/progress.marks
-	cd /mnt/c/Users/Distaff/source/repos/miapd/project1 && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 includes/restinio/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /mnt/c/Users/Distaff/source/repos/miapd/project1/CMakeFiles 0
+	cd /mnt/c/Users/Distaff-WK/source/infa/MIAPD/project1 && $(CMAKE_COMMAND) -E cmake_progress_start /mnt/c/Users/Distaff-WK/source/infa/MIAPD/project1/CMakeFiles /mnt/c/Users/Distaff-WK/source/infa/MIAPD/project1/includes/restinio//CMakeFiles/progress.marks
+	cd /mnt/c/Users/Distaff-WK/source/infa/MIAPD/project1 && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 includes/restinio/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /mnt/c/Users/Distaff-WK/source/infa/MIAPD/project1/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
 clean:
-	cd /mnt/c/Users/Distaff/source/repos/miapd/project1 && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 includes/restinio/clean
+	cd /mnt/c/Users/Distaff-WK/source/infa/MIAPD/project1 && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 includes/restinio/clean
 .PHONY : clean
 
 # The main clean target
@@ -148,17 +148,17 @@ clean/fast: clean
 
 # Prepare targets for installation.
 preinstall: all
-	cd /mnt/c/Users/Distaff/source/repos/miapd/project1 && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 includes/restinio/preinstall
+	cd /mnt/c/Users/Distaff-WK/source/infa/MIAPD/project1 && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 includes/restinio/preinstall
 .PHONY : preinstall
 
 # Prepare targets for installation.
 preinstall/fast:
-	cd /mnt/c/Users/Distaff/source/repos/miapd/project1 && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 includes/restinio/preinstall
+	cd /mnt/c/Users/Distaff-WK/source/infa/MIAPD/project1 && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 includes/restinio/preinstall
 .PHONY : preinstall/fast
 
 # clear depends
 depend:
-	cd /mnt/c/Users/Distaff/source/repos/miapd/project1 && $(CMAKE_COMMAND) -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 1
+	cd /mnt/c/Users/Distaff-WK/source/infa/MIAPD/project1 && $(CMAKE_COMMAND) -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 1
 .PHONY : depend
 
 # Help Target
@@ -184,6 +184,6 @@ help:
 # No rule that depends on this can have commands that come from listfiles
 # because they might be regenerated.
 cmake_check_build_system:
-	cd /mnt/c/Users/Distaff/source/repos/miapd/project1 && $(CMAKE_COMMAND) -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 0
+	cd /mnt/c/Users/Distaff-WK/source/infa/MIAPD/project1 && $(CMAKE_COMMAND) -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 0
 .PHONY : cmake_check_build_system
 

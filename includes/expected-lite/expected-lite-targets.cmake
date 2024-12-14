@@ -49,7 +49,7 @@ unset(_expectedTargets)
 add_library(nonstd::expected-lite INTERFACE IMPORTED)
 
 set_target_properties(nonstd::expected-lite PROPERTIES
-  INTERFACE_INCLUDE_DIRECTORIES "/mnt/c/Users/Distaff/source/repos/miapd/project1/includes/expected-lite/include"
+  INTERFACE_INCLUDE_DIRECTORIES "/mnt/c/users/Distaff-WK/source/infa/MIAPD/project1/includes/expected-lite/include"
 )
 
 # This file does not depend on other imported targets which have

@@ -27,7 +27,7 @@ set(EIGEN3_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/includes/eigen-3.4.0")
 find_package(Eigen3 REQUIRED)
 
 # simplejson
-add_subdirectory(includes/simpleson-1.1.0)
+add_subdirectory(includes/simpleson-2.0.0)
 
 # webserver executable
 add_executable(webserver "src/main.cpp" "src/json_handling.cpp" "src/AHP.cpp" "src/webserver.cpp")

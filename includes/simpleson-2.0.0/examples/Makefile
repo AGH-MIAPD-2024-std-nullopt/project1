@@ -132,14 +132,14 @@ install/strip/fast: preinstall/fast
 
 # The main all target
 all: cmake_check_build_system
-	cd /mnt/c/Users/Distaff-WK/source/infa/MIAPD/project1 && $(CMAKE_COMMAND) -E cmake_progress_start /mnt/c/Users/Distaff-WK/source/infa/MIAPD/project1/CMakeFiles /mnt/c/Users/Distaff-WK/source/infa/MIAPD/project1/includes/expected-lite//CMakeFiles/progress.marks
-	cd /mnt/c/Users/Distaff-WK/source/infa/MIAPD/project1 && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 includes/expected-lite/all
+	cd /mnt/c/Users/Distaff-WK/source/infa/MIAPD/project1 && $(CMAKE_COMMAND) -E cmake_progress_start /mnt/c/Users/Distaff-WK/source/infa/MIAPD/project1/CMakeFiles /mnt/c/Users/Distaff-WK/source/infa/MIAPD/project1/includes/simpleson-2.0.0/examples//CMakeFiles/progress.marks
+	cd /mnt/c/Users/Distaff-WK/source/infa/MIAPD/project1 && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 includes/simpleson-2.0.0/examples/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /mnt/c/Users/Distaff-WK/source/infa/MIAPD/project1/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
 clean:
-	cd /mnt/c/Users/Distaff-WK/source/infa/MIAPD/project1 && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 includes/expected-lite/clean
+	cd /mnt/c/Users/Distaff-WK/source/infa/MIAPD/project1 && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 includes/simpleson-2.0.0/examples/clean
 .PHONY : clean
 
 # The main clean target
@@ -148,18 +148,94 @@ clean/fast: clean
 
 # Prepare targets for installation.
 preinstall: all
-	cd /mnt/c/Users/Distaff-WK/source/infa/MIAPD/project1 && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 includes/expected-lite/preinstall
+	cd /mnt/c/Users/Distaff-WK/source/infa/MIAPD/project1 && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 includes/simpleson-2.0.0/examples/preinstall
 .PHONY : preinstall
 
 # Prepare targets for installation.
 preinstall/fast:
-	cd /mnt/c/Users/Distaff-WK/source/infa/MIAPD/project1 && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 includes/expected-lite/preinstall
+	cd /mnt/c/Users/Distaff-WK/source/infa/MIAPD/project1 && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 includes/simpleson-2.0.0/examples/preinstall
 .PHONY : preinstall/fast
 
 # clear depends
 depend:
 	cd /mnt/c/Users/Distaff-WK/source/infa/MIAPD/project1 && $(CMAKE_COMMAND) -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 1
 .PHONY : depend
+
+# Convenience name for target.
+includes/simpleson-2.0.0/examples/CMakeFiles/objectarray.dir/rule:
+	cd /mnt/c/Users/Distaff-WK/source/infa/MIAPD/project1 && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 includes/simpleson-2.0.0/examples/CMakeFiles/objectarray.dir/rule
+.PHONY : includes/simpleson-2.0.0/examples/CMakeFiles/objectarray.dir/rule
+
+# Convenience name for target.
+objectarray: includes/simpleson-2.0.0/examples/CMakeFiles/objectarray.dir/rule
+.PHONY : objectarray
+
+# fast build rule for target.
+objectarray/fast:
+	cd /mnt/c/Users/Distaff-WK/source/infa/MIAPD/project1 && $(MAKE) $(MAKESILENT) -f includes/simpleson-2.0.0/examples/CMakeFiles/objectarray.dir/build.make includes/simpleson-2.0.0/examples/CMakeFiles/objectarray.dir/build
+.PHONY : objectarray/fast
+
+# Convenience name for target.
+includes/simpleson-2.0.0/examples/CMakeFiles/rootarray.dir/rule:
+	cd /mnt/c/Users/Distaff-WK/source/infa/MIAPD/project1 && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 includes/simpleson-2.0.0/examples/CMakeFiles/rootarray.dir/rule
+.PHONY : includes/simpleson-2.0.0/examples/CMakeFiles/rootarray.dir/rule
+
+# Convenience name for target.
+rootarray: includes/simpleson-2.0.0/examples/CMakeFiles/rootarray.dir/rule
+.PHONY : rootarray
+
+# fast build rule for target.
+rootarray/fast:
+	cd /mnt/c/Users/Distaff-WK/source/infa/MIAPD/project1 && $(MAKE) $(MAKESILENT) -f includes/simpleson-2.0.0/examples/CMakeFiles/rootarray.dir/build.make includes/simpleson-2.0.0/examples/CMakeFiles/rootarray.dir/build
+.PHONY : rootarray/fast
+
+objectarray.o: objectarray.cpp.o
+.PHONY : objectarray.o
+
+# target to build an object file
+objectarray.cpp.o:
+	cd /mnt/c/Users/Distaff-WK/source/infa/MIAPD/project1 && $(MAKE) $(MAKESILENT) -f includes/simpleson-2.0.0/examples/CMakeFiles/objectarray.dir/build.make includes/simpleson-2.0.0/examples/CMakeFiles/objectarray.dir/objectarray.cpp.o
+.PHONY : objectarray.cpp.o
+
+objectarray.i: objectarray.cpp.i
+.PHONY : objectarray.i
+
+# target to preprocess a source file
+objectarray.cpp.i:
+	cd /mnt/c/Users/Distaff-WK/source/infa/MIAPD/project1 && $(MAKE) $(MAKESILENT) -f includes/simpleson-2.0.0/examples/CMakeFiles/objectarray.dir/build.make includes/simpleson-2.0.0/examples/CMakeFiles/objectarray.dir/objectarray.cpp.i
+.PHONY : objectarray.cpp.i
+
+objectarray.s: objectarray.cpp.s
+.PHONY : objectarray.s
+
+# target to generate assembly for a file
+objectarray.cpp.s:
+	cd /mnt/c/Users/Distaff-WK/source/infa/MIAPD/project1 && $(MAKE) $(MAKESILENT) -f includes/simpleson-2.0.0/examples/CMakeFiles/objectarray.dir/build.make includes/simpleson-2.0.0/examples/CMakeFiles/objectarray.dir/objectarray.cpp.s
+.PHONY : objectarray.cpp.s
+
+rootarray.o: rootarray.cpp.o
+.PHONY : rootarray.o
+
+# target to build an object file
+rootarray.cpp.o:
+	cd /mnt/c/Users/Distaff-WK/source/infa/MIAPD/project1 && $(MAKE) $(MAKESILENT) -f includes/simpleson-2.0.0/examples/CMakeFiles/rootarray.dir/build.make includes/simpleson-2.0.0/examples/CMakeFiles/rootarray.dir/rootarray.cpp.o
+.PHONY : rootarray.cpp.o
+
+rootarray.i: rootarray.cpp.i
+.PHONY : rootarray.i
+
+# target to preprocess a source file
+rootarray.cpp.i:
+	cd /mnt/c/Users/Distaff-WK/source/infa/MIAPD/project1 && $(MAKE) $(MAKESILENT) -f includes/simpleson-2.0.0/examples/CMakeFiles/rootarray.dir/build.make includes/simpleson-2.0.0/examples/CMakeFiles/rootarray.dir/rootarray.cpp.i
+.PHONY : rootarray.cpp.i
+
+rootarray.s: rootarray.cpp.s
+.PHONY : rootarray.s
+
+# target to generate assembly for a file
+rootarray.cpp.s:
+	cd /mnt/c/Users/Distaff-WK/source/infa/MIAPD/project1 && $(MAKE) $(MAKESILENT) -f includes/simpleson-2.0.0/examples/CMakeFiles/rootarray.dir/build.make includes/simpleson-2.0.0/examples/CMakeFiles/rootarray.dir/rootarray.cpp.s
+.PHONY : rootarray.cpp.s
 
 # Help Target
 help:
@@ -173,6 +249,14 @@ help:
 	@echo "... install/strip"
 	@echo "... list_install_components"
 	@echo "... rebuild_cache"
+	@echo "... objectarray"
+	@echo "... rootarray"
+	@echo "... objectarray.o"
+	@echo "... objectarray.i"
+	@echo "... objectarray.s"
+	@echo "... rootarray.o"
+	@echo "... rootarray.i"
+	@echo "... rootarray.s"
 .PHONY : help
 
 
