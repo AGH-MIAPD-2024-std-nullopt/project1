@@ -41,3 +41,6 @@ Alternatively you can use 'docker compose up --force-recreate' in main catalog
 
 For more details on using Docker, refer to the [Docker documentation](https://docs.docker.com/).
 
+## Authors
+
+This program was created by Maciej Grzybacz, Piotr Kądziela and Michał Hemperek
