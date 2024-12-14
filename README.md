@@ -16,24 +16,26 @@ To get started with Docker for this project, follow the instructions below:
    ```
 3. **Build the Docker Image**: Run the following command to build the Docker image.
    ```bash
-   docker build -t webserver .
+   docker build -t ahpwebserver .
    ```
 4. **Run the Docker Container**: After building the image, you can run the container using the following command.
    ```bash
-   docker run -p 8080:8080 webserver
+   docker run -p 8080:8080 ahpwebserver
    ```
 6. **Stop and Remove the Container**: To stop the running container, use:
    ```bash
-   docker stop webserver
+   docker stop ahpwebserver
    ```
    To remove the container after stopping it, use:
    ```bash
-   docker rm webserver
+   docker rm ahpwebserver
    ```
 7. **Clean Up**: To remove the Docker image if needed, use:
    ```bash
-   docker rmi webserver
+   docker rmi ahpwebserver
    ```
+
+Alternatively you can use 'docker compose up --force-recreate' in main catalog
 
 ## Additional Information
 
