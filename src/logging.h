@@ -19,7 +19,7 @@ namespace logger {
         }
 
         inline std::string format(const std::string& level, const std::string& msg) {
-            return fmt::format("{} WEBSERVER/{}:{}", datetimeStr(), level, msg);
+            return fmt::format("{} WEBSERVER/{}: {}", datetimeStr(), level, msg);
         }
     }   // namespace
 

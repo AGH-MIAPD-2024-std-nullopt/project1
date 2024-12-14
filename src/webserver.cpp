@@ -110,6 +110,7 @@ namespace webserver
       std::lock_guard lock(currentState);
       currentState.alternatives = alternatives;
       currentState.criteria = criteria;
+      currentState.agentInputs.clear();
 
       createOKResponse(req);
     }
@@ -118,6 +119,77 @@ namespace webserver
       createErrorResponse(req);
       return restinio::request_rejected();
     }
+
+    return restinio::request_accepted();
+  };
+
+  auto submitHandler = [](auto req, auto) {
+    try {
+      auto query = restinio::parse_query(req->header().query());
+      std::string jsonStr(query["data"]);
+
+      json_handling::AgentInput agi = json_handling::parseAgentInput(jsonStr);
+
+      logger::debug(fmt::format("Recieved valid agent input."));
+
+      std::lock_guard lock(currentState);
+      currentState.agentInputs.push_back(agi);
+
+      createOKResponse(req);
+    }
+    catch(const std::exception& e) {
+      logger::error(fmt::format("Error while parsing setup json: {}\n\tquery: {}", e.what(), req->header().query()));
+      createErrorResponse(req);
+      return restinio::request_rejected();
+    }
+
+    return restinio::request_accepted();
+  };
+
+  auto resultsHandler = [](auto req, auto) {
+    std::lock_guard lock(currentState);
+
+    if(currentState.alternatives.empty() || currentState.criteria.empty() || currentState.agentInputs.empty()) {
+      createErrorResponse(req, restinio::status_not_found());
+      return restinio::request_rejected();
+    }
+
+    AHP::AHPMeanCalculator meanCalc(currentState.criteria);
+
+    for(auto& agentInput : currentState.agentInputs) {
+      AHP::Matrix2D criteriaMatrix = AHP::buildMatrix(agentInput.critComparisons, currentState.criteria);
+      meanCalc.addCritMatrix(std::move(criteriaMatrix));
+
+      std::map<std::string, AHP::Matrix2D> altMatrices;
+      for(auto& [criteria, comparisons] : agentInput.altComparisons) {
+        altMatrices[criteria] = AHP::buildMatrix(comparisons, currentState.alternatives);
+      }
+      meanCalc.addAltMatrices(std::move(altMatrices));
+    }
+
+    auto critMatrix = meanCalc.getMeanCritMatrix();
+    auto altMatrices = meanCalc.getMeanAltMatrices();
+    
+    std::cout << "critMatrix: " << critMatrix << std::endl;
+    for(auto& m : altMatrices) {
+      std::cout << "altMatrix: " << m << std::endl;
+    }
+
+    AHP::AHPRanker ranker;
+    AHP::AHPResult result = ranker.calculateRanking(critMatrix, altMatrices);
+
+    std::string jsonResult = fmt::format(R"({{
+      "ranking": [{}],
+      "criteriaIRatio": {},
+      "alternativesIRatios": [{}]
+    }})", fmt::join(result.ranking, ","), result.criteriaIRatio, fmt::join(result.alternativesIRatios, ","));
+
+    req->create_response()
+      .append_header( restinio::http_field::content_type, "application/json" )
+      .append_header_date_field()
+      .set_body(jsonResult)
+      .done();
+
     return restinio::request_accepted();
   };
 
@@ -139,7 +211,14 @@ namespace webserver
       "/submitSetup",
       submitSetupHandler
     );
-    
+    router->http_get(
+      "/submit",
+      submitHandler
+    );
+    router->http_get(
+      "/getResults",
+      resultsHandler
+    );
     router->http_get(
       R"(/static/:path(.*)\.:ext(.*))",
       staticContentHandler
