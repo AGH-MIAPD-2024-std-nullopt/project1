@@ -26,7 +26,10 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/includes/eigen-3.4.0/cmake")
 set(EIGEN3_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/includes/eigen-3.4.0")
 find_package(Eigen3 REQUIRED)
 
+# simplejson
+add_subdirectory(includes/simpleson-2.0.0)
+
 # webserver executable
-add_executable(webserver "src/main.cpp" "src/AHP.cpp" "src/webserver.cpp")
+add_executable(webserver "src/main.cpp" "src/json_handling.cpp" "src/AHP.cpp" "src/webserver.cpp")
 target_include_directories(webserver PRIVATE ${CMAKE_SOURCE_DIR}/includes)
-target_link_libraries(webserver PRIVATE restinio::restinio fmt::fmt Eigen3::Eigen)
+target_link_libraries(webserver PRIVATE restinio::restinio fmt::fmt Eigen3::Eigen simpleson)

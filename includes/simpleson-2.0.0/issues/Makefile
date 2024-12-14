@@ -132,14 +132,14 @@ install/strip/fast: preinstall/fast
 
 # The main all target
 all: cmake_check_build_system
-	cd /mnt/c/Users/Distaff-WK/source/infa/MIAPD/project1 && $(CMAKE_COMMAND) -E cmake_progress_start /mnt/c/Users/Distaff-WK/source/infa/MIAPD/project1/CMakeFiles /mnt/c/Users/Distaff-WK/source/infa/MIAPD/project1/includes/expected-lite//CMakeFiles/progress.marks
-	cd /mnt/c/Users/Distaff-WK/source/infa/MIAPD/project1 && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 includes/expected-lite/all
+	cd /mnt/c/Users/Distaff-WK/source/infa/MIAPD/project1 && $(CMAKE_COMMAND) -E cmake_progress_start /mnt/c/Users/Distaff-WK/source/infa/MIAPD/project1/CMakeFiles /mnt/c/Users/Distaff-WK/source/infa/MIAPD/project1/includes/simpleson-2.0.0/issues//CMakeFiles/progress.marks
+	cd /mnt/c/Users/Distaff-WK/source/infa/MIAPD/project1 && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 includes/simpleson-2.0.0/issues/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /mnt/c/Users/Distaff-WK/source/infa/MIAPD/project1/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
 clean:
-	cd /mnt/c/Users/Distaff-WK/source/infa/MIAPD/project1 && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 includes/expected-lite/clean
+	cd /mnt/c/Users/Distaff-WK/source/infa/MIAPD/project1 && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 includes/simpleson-2.0.0/issues/clean
 .PHONY : clean
 
 # The main clean target
@@ -148,18 +148,56 @@ clean/fast: clean
 
 # Prepare targets for installation.
 preinstall: all
-	cd /mnt/c/Users/Distaff-WK/source/infa/MIAPD/project1 && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 includes/expected-lite/preinstall
+	cd /mnt/c/Users/Distaff-WK/source/infa/MIAPD/project1 && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 includes/simpleson-2.0.0/issues/preinstall
 .PHONY : preinstall
 
 # Prepare targets for installation.
 preinstall/fast:
-	cd /mnt/c/Users/Distaff-WK/source/infa/MIAPD/project1 && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 includes/expected-lite/preinstall
+	cd /mnt/c/Users/Distaff-WK/source/infa/MIAPD/project1 && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 includes/simpleson-2.0.0/issues/preinstall
 .PHONY : preinstall/fast
 
 # clear depends
 depend:
 	cd /mnt/c/Users/Distaff-WK/source/infa/MIAPD/project1 && $(CMAKE_COMMAND) -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 1
 .PHONY : depend
+
+# Convenience name for target.
+includes/simpleson-2.0.0/issues/CMakeFiles/issue_23.dir/rule:
+	cd /mnt/c/Users/Distaff-WK/source/infa/MIAPD/project1 && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 includes/simpleson-2.0.0/issues/CMakeFiles/issue_23.dir/rule
+.PHONY : includes/simpleson-2.0.0/issues/CMakeFiles/issue_23.dir/rule
+
+# Convenience name for target.
+issue_23: includes/simpleson-2.0.0/issues/CMakeFiles/issue_23.dir/rule
+.PHONY : issue_23
+
+# fast build rule for target.
+issue_23/fast:
+	cd /mnt/c/Users/Distaff-WK/source/infa/MIAPD/project1 && $(MAKE) $(MAKESILENT) -f includes/simpleson-2.0.0/issues/CMakeFiles/issue_23.dir/build.make includes/simpleson-2.0.0/issues/CMakeFiles/issue_23.dir/build
+.PHONY : issue_23/fast
+
+23.o: 23.cpp.o
+.PHONY : 23.o
+
+# target to build an object file
+23.cpp.o:
+	cd /mnt/c/Users/Distaff-WK/source/infa/MIAPD/project1 && $(MAKE) $(MAKESILENT) -f includes/simpleson-2.0.0/issues/CMakeFiles/issue_23.dir/build.make includes/simpleson-2.0.0/issues/CMakeFiles/issue_23.dir/23.cpp.o
+.PHONY : 23.cpp.o
+
+23.i: 23.cpp.i
+.PHONY : 23.i
+
+# target to preprocess a source file
+23.cpp.i:
+	cd /mnt/c/Users/Distaff-WK/source/infa/MIAPD/project1 && $(MAKE) $(MAKESILENT) -f includes/simpleson-2.0.0/issues/CMakeFiles/issue_23.dir/build.make includes/simpleson-2.0.0/issues/CMakeFiles/issue_23.dir/23.cpp.i
+.PHONY : 23.cpp.i
+
+23.s: 23.cpp.s
+.PHONY : 23.s
+
+# target to generate assembly for a file
+23.cpp.s:
+	cd /mnt/c/Users/Distaff-WK/source/infa/MIAPD/project1 && $(MAKE) $(MAKESILENT) -f includes/simpleson-2.0.0/issues/CMakeFiles/issue_23.dir/build.make includes/simpleson-2.0.0/issues/CMakeFiles/issue_23.dir/23.cpp.s
+.PHONY : 23.cpp.s
 
 # Help Target
 help:
@@ -173,6 +211,10 @@ help:
 	@echo "... install/strip"
 	@echo "... list_install_components"
 	@echo "... rebuild_cache"
+	@echo "... issue_23"
+	@echo "... 23.o"
+	@echo "... 23.i"
+	@echo "... 23.s"
 .PHONY : help
 
 

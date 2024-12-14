@@ -51,7 +51,7 @@ add_library(fmt::fmt SHARED IMPORTED)
 set_target_properties(fmt::fmt PROPERTIES
   INTERFACE_COMPILE_DEFINITIONS "FMT_SHARED"
   INTERFACE_COMPILE_FEATURES "cxx_std_11"
-  INTERFACE_INCLUDE_DIRECTORIES "/mnt/c/Users/Distaff/source/repos/miapd/project1/includes/fmt/include"
+  INTERFACE_INCLUDE_DIRECTORIES "/mnt/c/users/Distaff-WK/source/infa/MIAPD/project1/includes/fmt/include"
 )
 
 # Create imported target fmt::fmt-header-only
@@ -60,14 +60,14 @@ add_library(fmt::fmt-header-only INTERFACE IMPORTED)
 set_target_properties(fmt::fmt-header-only PROPERTIES
   INTERFACE_COMPILE_DEFINITIONS "FMT_HEADER_ONLY=1"
   INTERFACE_COMPILE_FEATURES "cxx_std_11"
-  INTERFACE_INCLUDE_DIRECTORIES "/mnt/c/Users/Distaff/source/repos/miapd/project1/includes/fmt/include"
+  INTERFACE_INCLUDE_DIRECTORIES "/mnt/c/users/Distaff-WK/source/infa/MIAPD/project1/includes/fmt/include"
 )
 
-# Import target "fmt::fmt" for configuration "RELWITHDEBINFO"
-set_property(TARGET fmt::fmt APPEND PROPERTY IMPORTED_CONFIGURATIONS RELWITHDEBINFO)
+# Import target "fmt::fmt" for configuration "Debug"
+set_property(TARGET fmt::fmt APPEND PROPERTY IMPORTED_CONFIGURATIONS DEBUG)
 set_target_properties(fmt::fmt PROPERTIES
-  IMPORTED_LOCATION_RELWITHDEBINFO "/mnt/c/Users/Distaff/source/repos/miapd/project1/build/lib/libfmt.so.10.1.0"
-  IMPORTED_SONAME_RELWITHDEBINFO "libfmt.so.10"
+  IMPORTED_LOCATION_DEBUG "/mnt/c/users/Distaff-WK/source/infa/MIAPD/project1/build/lib/libfmtd.so.10.1.0"
+  IMPORTED_SONAME_DEBUG "libfmtd.so.10"
   )
 
 # This file does not depend on other imported targets which have

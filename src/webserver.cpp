@@ -1,8 +1,28 @@
 #include "webserver.h"
+#include "AHP.h"
+#include "logging.h"
+#include "json_handling.h"
 
+#include <mutex>
 #include <filesystem>
 #include <fmt/core.h>
 
+
+void createErrorResponse(auto& req, restinio::http_status_line_t status = restinio::status_internal_server_error()) {
+  req->create_response(status)
+    .append_header_date_field()
+    .connection_close()
+    .done();
+}
+
+void createOKResponse(auto& req) {
+  req->create_response(restinio::status_ok())
+    .append_header( restinio::http_field::content_type, "application/json" )
+    .append_header_date_field()
+    .set_body("{ \"status\": \"Success\" }")
+    .connection_close()
+    .done();
+}
 
 std::string loadFile(const std::string& path)
 {
@@ -18,7 +38,7 @@ std::string loadFile(const std::string& path)
   return contents.str();
 }
 
-std::string getMIMEType(const restinio::string_view_t & ext)
+std::string getMIMEType(const restinio::string_view_t& ext)
 {
   if(ext == "css")    return "text/css";
   if(ext == "csv")    return "text/csv";
@@ -38,37 +58,143 @@ std::string getMIMEType(const restinio::string_view_t & ext)
 
 namespace webserver 
 {
+  static struct : public std::mutex { // just to make this object lockable
+    std::vector<std::string> alternatives;
+    std::vector<std::string> criteria;
+    std::vector<json_handling::AgentInput> agentInputs;
+  } currentState;
+
   auto staticContentHandler = [](auto req, auto params) {
     const auto path = params["path"];
     const auto ext = params["ext"];
 
-    const auto filePath = fmt::format("static/{}.{}", path, ext);
+    const std::string filePath = fmt::format("src_html/static/{}.{}", path, ext);
 
     if(filePath.find("..") != std::string::npos) {
-      return req->create_response(restinio::status_forbidden())
-        .append_header_date_field()
-        .connection_close()
-        .done();
+      createErrorResponse(req, restinio::status_forbidden());
+      return restinio::request_rejected();
     }
 
-    if(!std::filesystem::exists(filePath)) {
-      return req->create_response(restinio::status_not_found())
-        .append_header_date_field()
-        .connection_close()
-        .done();
+    const std::string absPath = std::filesystem::absolute(filePath).string();
+
+    if(!std::filesystem::exists(absPath)) {
+      createErrorResponse(req, restinio::status_not_found());
+      return restinio::request_rejected();
     }
 
     try
     {
-      //TODO: read file and send it as response
+      req->create_response()
+        .append_header( restinio::http_field::content_type, getMIMEType(ext) )
+        .append_header_date_field()
+        .set_body(loadFile(absPath))
+        .done();
+      return restinio::request_accepted();
     }
     catch(const std::exception& e)
     {
-      return req->create_response(restinio::status_internal_server_error())
-        .append_header_date_field()
-        .connection_close()
-        .done();
+      createErrorResponse(req);
+      return restinio::request_rejected();
     }
+    return restinio::request_rejected();
+  };
+
+  auto submitSetupHandler = [](auto req, auto) {
+    try {
+      auto query = restinio::parse_query(req->header().query());
+      std::string jsonStr(query["data"]);
+
+      auto [alternatives, criteria] = json_handling::parseSetup(jsonStr);
+
+      logger::debug(fmt::format("Recieved valid setup.\n\t criteria: [{}] \n\t alternatives: [{}]", 
+                    fmt::join(criteria, ","), fmt::join(alternatives, ",")));
+
+      std::lock_guard lock(currentState);
+      currentState.alternatives = alternatives;
+      currentState.criteria = criteria;
+      currentState.agentInputs.clear();
+    }
+    catch(const std::exception& e) {
+      logger::error(fmt::format("Error while parsing setup json: {}\n\tquery: {}", e.what(), req->header().query()));
+      createErrorResponse(req);
+      return restinio::request_rejected();
+    }
+
+    createOKResponse(req);
+    return restinio::request_accepted();
+  };
+
+  auto submitHandler = [](auto req, auto) {
+    try {
+      auto query = restinio::parse_query(req->header().query());
+      std::string jsonStr(query["data"]);
+
+      json_handling::AgentInput agi = json_handling::parseAgentInput(jsonStr);
+
+      logger::debug(fmt::format("Recieved valid agent input."));
+
+      std::lock_guard lock(currentState);
+      currentState.agentInputs.push_back(agi);
+    }
+    catch(const std::exception& e) {
+      logger::error(fmt::format("Error while parsing setup json: {}\n\tquery: {}", e.what(), req->header().query()));
+      createErrorResponse(req);
+      return restinio::request_rejected();
+    }
+
+    createOKResponse(req);
+    return restinio::request_accepted();
+  };
+
+  auto resultsHandler = [](auto req, auto) {
+    std::lock_guard lock(currentState);
+
+    if(currentState.alternatives.empty() || currentState.criteria.empty() || currentState.agentInputs.empty()) {
+      req->create_response()
+        .append_header( restinio::http_field::content_type, "application/json" )
+        .append_header_date_field()
+        .set_body("{ \"status\": \"Error\", \"message\": \"No data has been submitted\" }")
+        .done();
+      return restinio::request_rejected();
+    }
+
+    AHP::AHPMeanCalculator meanCalc(currentState.criteria);
+
+    for(auto& agentInput : currentState.agentInputs) {
+      AHP::Matrix2D criteriaMatrix = AHP::buildMatrix(agentInput.critComparisons, currentState.criteria);
+      meanCalc.addCritMatrix(std::move(criteriaMatrix));
+
+      std::map<std::string, AHP::Matrix2D> altMatrices;
+      for(auto& [criteria, comparisons] : agentInput.altComparisons) {
+        altMatrices[criteria] = AHP::buildMatrix(comparisons, currentState.alternatives);
+      }
+      meanCalc.addAltMatrices(std::move(altMatrices));
+    }
+
+    auto critMatrix = meanCalc.getMeanCritMatrix();
+    auto altMatrices = meanCalc.getMeanAltMatrices();
+    
+    std::cout << "critMatrix: " << critMatrix << std::endl;
+    for(auto& m : altMatrices) {
+      std::cout << "altMatrix: " << m << std::endl;
+    }
+
+    AHP::AHPRanker ranker;
+    AHP::AHPResult result = ranker.calculateRanking(critMatrix, altMatrices);
+
+    std::string jsonResult = fmt::format(R"({{
+      "ranking": [{}],
+      "criteriaIRatio": {},
+      "alternativesIRatios": [{}]
+    }})", fmt::join(result.ranking, ","), result.criteriaIRatio, fmt::join(result.alternativesIRatios, ","));
+
+    req->create_response()
+      .append_header( restinio::http_field::content_type, "application/json" )
+      .append_header_date_field()
+      .set_body(jsonResult)
+      .done();
+
+    return restinio::request_accepted();
   };
 
   std::unique_ptr<router_t> createRequestHandler()
@@ -85,7 +211,18 @@ namespace webserver
         return restinio::request_accepted();
       }
     );
-    
+    router->http_get(
+      "/submitSetup",
+      submitSetupHandler
+    );
+    router->http_get(
+      "/submit",
+      submitHandler
+    );
+    router->http_get(
+      "/results",
+      resultsHandler
+    );
     router->http_get(
       R"(/static/:path(.*)\.:ext(.*))",
       staticContentHandler
