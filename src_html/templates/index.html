@@ -6,7 +6,7 @@
     <link rel="stylesheet" href="static/styles.css">
 </head>
 <body>
-    <div class="config-section">
+    <div class="config-section" id="configSection">
         <h2>Konfiguracja AHP</h2>
         <div>
             <h3>Kategorie</h3>
@@ -101,10 +101,10 @@
                         select.onchange = () => updateInverseCell(matrixId, rowEl, colEl);
                         cell.appendChild(select);
                     } else {
-                        const inverseCell = document.createElement('div');
-                        inverseCell.id = `${matrixId}_${rowEl}_${colEl}_inverse`;
-                        inverseCell.textContent = '1';
-                        cell.appendChild(inverseCell);
+                        //const inverseCell = document.createElement('div');
+                        //inverseCell.id = `${matrixId}_${rowEl}_${colEl}`;
+                        //inverseCell.textContent = '1';
+                        //cell.appendChild(inverseCell);
                     }
                     matrix.appendChild(cell);
                 });
@@ -116,7 +116,7 @@
 
         function updateInverseCell(matrixId, rowEl, colEl) {
             const select = document.getElementById(`${matrixId}_${rowEl}_${colEl}`);
-            const inverseCell = document.getElementById(`${matrixId}_${colEl}_${rowEl}_inverse`);
+            const inverseCell = document.getElementById(`${matrixId}_${colEl}_${rowEl}`);
             if (select && inverseCell) {
                 const inverseValue = (1 / parseFloat(select.value)).toFixed(3);
                 inverseCell.textContent = inverseValue;
@@ -126,12 +126,46 @@
         function createComparisonMatrices() {
             const categories = getInputValues('category');
             const alternatives = getInputValues('alternative');
-
+            
             if (categories.length < 2 || alternatives.length < 2) {
                 alert('Musisz podać co najmniej 2 kategorie i 2 alternatywy');
                 return;
             }
 
+            // disable all buttons and textboxes recusively inside configSection
+            var configSection = document.getElementById('configSection');
+            var elements = configSection.getElementsByTagName('*');
+            for (var i = 0; i < elements.length; i++) {
+                elements[i].disabled = true;
+            }
+
+            const setup = { criteria: [], alternatives: [] }; 
+            const results = { criteriaMatrix: {}, alternativeMatrices: {} };
+
+            // Eksport kategorii
+            categories.forEach((category, index) => {
+                setup.criteria.push(category);
+            });
+
+            // Eksport alternatyw
+            alternatives.forEach((alternative, index) => {
+                setup.alternatives.push(alternative);
+            });
+            fetch('/submitSetup?data=' + encodeURIComponent(JSON.stringify(setup)), {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Setup: Success:', data);
+            })
+            .catch((error) => {
+                alert('Wystąpił błąd podczas uaktualniania ustawień: ' + error);
+            });
+
+            // Usuwanie poprzednich macierzy
             const comparisonSections = document.getElementById('comparisonSections');
             comparisonSections.innerHTML = '';
 
@@ -151,40 +185,39 @@
 
             // Eksport wyników
             const exportButton = document.createElement('button');
-            exportButton.textContent = 'Eksportuj wyniki';
+            exportButton.textContent = 'Wyślij odpowiedzi';
+            exportButton.style = 'float: left; margin-bottom: 20px;';
             exportButton.onclick = exportResults;
             comparisonSections.appendChild(exportButton);
 
-            const jsonOutput = document.createElement('textarea');
-            jsonOutput.id = 'jsonOutput';
-            jsonOutput.placeholder = 'Wyniki JSON pojawią się tutaj...';
-            comparisonSections.appendChild(jsonOutput);
+            // Rezultaty
+            const resultButton = document.createElement('button');
+            resultButton.textContent = 'Wygeneruj wyniki';
+            resultButton.style = 'float: right; margin-bottom: 20px;';
+            resultButton.onclick = function() {
+                window.location.href = '/results';
+            };
+            comparisonSections.appendChild(resultButton);
         }
 
         function exportResults() {
             const criteria = getInputValues('category');
             const alternatives = getInputValues('alternative');
-            const setup = { criteria: [], alternatives: [] }; 
             const results = { criteriaMatrix: {}, alternativeMatrices: {} };
-
-            // Eksport kategorii
-            criteria.forEach((category, index) => {
-                setup.criteria.push(category);
-            });
-
-            // Eksport alternatyw
-            alternatives.forEach((alternative, index) => {
-                setup.alternatives.push(alternative);
-            });
 
             // Eksport macierzy kategorii
             criteria.forEach(row => {
                 results.criteriaMatrix[row] = {};
                 criteria.forEach(col => {
+                    if(row === col) {
+                        results.criteriaMatrix[row][col] = 1;
+                        return;
+                    }
                     const cellId = `category_matrix_${row}_${col}`;
                     const select = document.getElementById(cellId);
-                    const value = select ? select.value : '1';
-                    results.criteriaMatrix[row][col] = value;
+                    if(select) {
+                        results.criteriaMatrix[row][col] = select.value;
+                    }                    
                 });
             });
 
@@ -194,20 +227,20 @@
                 alternatives.forEach(row => {
                     results.alternativeMatrices[category][row] = {};
                     alternatives.forEach(col => {
+                        if(row === col) {
+                            results.alternativeMatrices[category][row][col] = 1;
+                            return;
+                        }
                         const cellId = `alternatives_matrix_${category}_${row}_${col}`;
                         const select = document.getElementById(cellId);
-                        const value = select ? select.value : '1';
-                        results.alternativeMatrices[category][row][col] = value;
+                        if(select) {
+                            results.alternativeMatrices[category][row][col] = select.value;
+                        }
                     });
                 });
             });
 
-            const jsonOutput = document.getElementById('jsonOutput');
-            //jsonOutput.value = JSON.stringify(results, null, 2);
-            //navigator.clipboard.writeText(jsonOutput.value);
-
-
-            fetch('/submitSetup?data=' + encodeURIComponent(JSON.stringify(setup)), {
+            fetch('/submit?data=' + encodeURIComponent(JSON.stringify(results)), {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json'
@@ -215,10 +248,10 @@
             })
             .then(response => response.json())
             .then(data => {
-                console.log('Success:', data);
+                alert('Wyniki zostały wysłane pomyślnie.');
             })
             .catch((error) => {
-                console.error('Error:', error);
+                alert('Wystąpił błąd podczas wysyłania wyników: ' + error);
             });
         }
     </script>

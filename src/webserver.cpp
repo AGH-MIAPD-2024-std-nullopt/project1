@@ -17,7 +17,9 @@ void createErrorResponse(auto& req, restinio::http_status_line_t status = restin
 
 void createOKResponse(auto& req) {
   req->create_response(restinio::status_ok())
+    .append_header( restinio::http_field::content_type, "application/json" )
     .append_header_date_field()
+    .set_body("{ \"status\": \"Success\" }")
     .connection_close()
     .done();
 }
@@ -111,8 +113,6 @@ namespace webserver
       currentState.alternatives = alternatives;
       currentState.criteria = criteria;
       currentState.agentInputs.clear();
-
-      createOKResponse(req);
     }
     catch(const std::exception& e) {
       logger::error(fmt::format("Error while parsing setup json: {}\n\tquery: {}", e.what(), req->header().query()));
@@ -120,6 +120,7 @@ namespace webserver
       return restinio::request_rejected();
     }
 
+    createOKResponse(req);
     return restinio::request_accepted();
   };
 
@@ -134,8 +135,6 @@ namespace webserver
 
       std::lock_guard lock(currentState);
       currentState.agentInputs.push_back(agi);
-
-      createOKResponse(req);
     }
     catch(const std::exception& e) {
       logger::error(fmt::format("Error while parsing setup json: {}\n\tquery: {}", e.what(), req->header().query()));
@@ -143,6 +142,7 @@ namespace webserver
       return restinio::request_rejected();
     }
 
+    createOKResponse(req);
     return restinio::request_accepted();
   };
 
@@ -150,7 +150,11 @@ namespace webserver
     std::lock_guard lock(currentState);
 
     if(currentState.alternatives.empty() || currentState.criteria.empty() || currentState.agentInputs.empty()) {
-      createErrorResponse(req, restinio::status_not_found());
+      req->create_response()
+        .append_header( restinio::http_field::content_type, "application/json" )
+        .append_header_date_field()
+        .set_body("{ \"status\": \"Error\", \"message\": \"No data has been submitted\" }")
+        .done();
       return restinio::request_rejected();
     }
 
@@ -216,7 +220,7 @@ namespace webserver
       submitHandler
     );
     router->http_get(
-      "/getResults",
+      "/results",
       resultsHandler
     );
     router->http_get(
